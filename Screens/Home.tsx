@@ -16,25 +16,44 @@ type Props = {
 export default function Home({navigation}:Props) {
     const [country, setCountry] = useState('');
     const [load,setLoad]=useState(false)
-        const handlePress  = async () => {
-          setLoad(true)
-     const val  = await axios.get("https://restcountries.com/v3.1/name/"+country).then(res=>
-      {
-        navigation.navigate('CountryDetails',{data: res.data})
-        setLoad(false)
-      }).catch(error=> {
-        setLoad(false)
-        Alert.alert(
-        'Failed', error?.response?.data?.message,
-        [
-          {text: 'OK'},
-        ],
-        { 
-          cancelable: true 
-        }
-      );})
+    //     const handlePress  = async () => {
+    //       setLoad(true)
+    //  const val  = await axios.get("https://restcountries.com/v3.1/name/"+country).then(res=>
+    //   {
+    //     navigation.navigate('CountryDetails',{data: res.data})
+    //     setLoad(false)
+    //   }).catch(error=> {
+    //     setLoad(false)
+    //     Alert.alert(
+    //     'Failed', error?.response?.data?.message,
+    //     [
+    //       {text: 'OK'},
+    //     ],
+    //     { 
+    //       cancelable: true 
+    //     }
+    //   );})
        
-    }
+    // }
+    const handlePress = async () => {
+      setLoad(true);
+      try {
+        const response = await axios.get("https://restcountries.com/v3.1/name/" + country);
+        navigation.navigate('CountryDetails', { data: response.data });
+      } catch (error) {
+        Alert.alert(
+          'Failed', error?.response?.data?.message,
+          [
+            { text: 'OK' },
+          ],
+          {
+            cancelable: true
+          }
+        );
+      }
+      setLoad(false);
+    };
+    
      
     return(
      <View style={styles.container} >
@@ -46,8 +65,8 @@ export default function Home({navigation}:Props) {
       />
      
         <View style={styles.bottom}>
-       <TouchableOpacity style={country.length > 0?styles.button:styles.disable} onPress={handlePress} disabled={country.length > 0 ? false : true}>
-          <Text style={{ color: 'white',fontSize:16 }} > {load?  <ActivityIndicator size="large"  animating={load} color="white" />: 'Get Weather'} </Text>
+       <TouchableOpacity testID="buttontest" style={country.length > 0?styles.button:styles.disable} onPress={handlePress} disabled={country.length > 0 ? false : true}>
+          <Text  style={{ color: 'white',fontSize:16 }} > {load?  <ActivityIndicator size="large"  animating={load} color="white" />: 'Get Weather'} </Text>
        </TouchableOpacity>
        </View>
       </View>
