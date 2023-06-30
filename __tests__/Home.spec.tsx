@@ -1,39 +1,55 @@
 import React from 'react';
 import { render, fireEvent, waitFor } from '@testing-library/react-native';
-import axios from 'axios';
 import Home from '../Screens/Home';
-jest.mock('axios', () => ({
-    get: jest.fn(),
-  }));
-  describe('Home component', () => {
-    it('should navigate to CountryDetails screen with data on button press', async () => {
-      const mockNavigation = {
-        navigate: jest.fn(),
-      };
-  
-      const mockedData = {  };
-      axios.get.mockResolvedValueOnce({ data: mockedData });
-  
-      const { getByPlaceholderText, getByText } = render(
-        <Home navigation={mockNavigation} />
-      );
-  
-      const input = getByPlaceholderText('Enter the Country');
-      fireEvent.changeText(input, 'Country Name');
-  
-      const button = getByText('Get Weather');
-      fireEvent.press(button);
-  
-      await waitFor(() => {
-        expect(axios.get).toHaveBeenCalledTimes(1);
-        expect(axios.get).toHaveBeenCalledWith(
-          'https://restcountries.com/v3.1/name/Country Name'
-        );
-        expect(mockNavigation.navigate).toHaveBeenCalledTimes(1);
-        expect(mockNavigation.navigate).toHaveBeenCalledWith('CountryDetails', {
-          data: mockedData,
-        });
-      });
-    });
+import axios from 'axios';
+import { Alert } from 'react-native';
+
+
+jest.mock('axios');
+
+describe('Home component', () => {
+  test('handles button press - success', async () => {
+    const navigation = {
+      navigate: jest.fn(),
+    };
+    const { getByPlaceholderText, getByTestId, queryByTestId } = render(<Home navigation={navigation} />);
+    const countryInput = getByPlaceholderText('Enter the Country');
+    const button = getByTestId('buttontest');
+
+    fireEvent.changeText(countryInput, 'Canada');
+    const countryData = [{ name: { common: 'Canada' } }];
+    axios.get.mockResolvedValueOnce({ data: countryData });
+    fireEvent.press(button);
+
+    
+    await waitFor(() => expect(navigation.navigate).toHaveBeenCalledWith('CountryDetails', { data: countryData }));
+
+    expect(queryByTestId('error-alert')).toBeNull();
   });
-  
+
+  test('handles button press - failure', async () => {
+    const navigation = {
+      navigate: jest.fn(),
+    };
+
+    const { getByPlaceholderText, getByTestId, queryByTestId } = render(<Home navigation={navigation} />);
+
+    const countryInput = getByPlaceholderText('Enter the Country');
+    const button = getByTestId('buttontest');
+
+    fireEvent.changeText(countryInput, 'InvalidCountry');
+
+    // Mock the axios.get function to return a rejected promise
+    axios.get.mockRejectedValueOnce({ response: { data: { message: 'API error' } } });
+
+    // Spy on the Alert.alert function
+    const alertSpy = jest.spyOn(Alert, 'alert');
+
+    // Simulate button press
+    fireEvent.press(button);
+
+    // Wait for the axios request to reject and handle the error
+    await waitFor(() => expect(alertSpy).toHaveBeenCalledWith('Failed', 'API error',[{"text": "OK"}], {"cancelable": true}));
+
+  });
+});

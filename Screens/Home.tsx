@@ -16,25 +16,7 @@ type Props = {
 export default function Home({navigation}:Props) {
     const [country, setCountry] = useState('');
     const [load,setLoad]=useState(false)
-    //     const handlePress  = async () => {
-    //       setLoad(true)
-    //  const val  = await axios.get("https://restcountries.com/v3.1/name/"+country).then(res=>
-    //   {
-    //     navigation.navigate('CountryDetails',{data: res.data})
-    //     setLoad(false)
-    //   }).catch(error=> {
-    //     setLoad(false)
-    //     Alert.alert(
-    //     'Failed', error?.response?.data?.message,
-    //     [
-    //       {text: 'OK'},
-    //     ],
-    //     { 
-    //       cancelable: true 
-    //     }
-    //   );})
-       
-    // }
+   
     const handlePress = async () => {
       setLoad(true);
       try {
@@ -61,7 +43,6 @@ export default function Home({navigation}:Props) {
         style={styles.inputStyle}
         placeholder="Enter the Country"
         onChangeText={newText => setCountry(newText)}
-        defaultValue={country}
       />
      
         <View style={styles.bottom}>
@@ -117,3 +98,22 @@ const styles = StyleSheet.create({
         alignItems:'center'
     },
 })
+ //     const handlePress  = async () => {
+    //       setLoad(true)
+    //  const val  = await axios.get("https://restcountries.com/v3.1/name/"+country).then(res=>
+    //   {
+    //     navigation.navigate('CountryDetails',{data: res.data})
+    //     setLoad(false)
+    //   }).catch(error=> {
+    //     setLoad(false)
+    //     Alert.alert(
+    //     'Failed', error?.response?.data?.message,
+    //     [
+    //       {text: 'OK'},
+    //     ],
+    //     { 
+    //       cancelable: true 
+    //     }
+    //   );})
+       
+    // }
