@@ -1,18 +1,39 @@
-import { StyleSheet,TouchableOpacity, TextInput, View,Text  } from 'react-native';
+import { StyleSheet,TouchableOpacity,ActivityIndicator, TextInput, View,Text, Alert  } from 'react-native';
 import { useState } from 'react';
 import { RootStackParamList } from '../App';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import axios  from 'axios';
 
 
+type ProfileScreenNavigationProp = NativeStackScreenProps<
+  RootStackParamList,
+  'Home'
+>;
+type Props = {
+  navigation: ProfileScreenNavigationProp;
+};
 
-export default function Home({navigation}:NativeStackScreenProps<RootStackParamList, "Home">) {
-    const [country, setCountry] = useState('')
-    const handlePress  = async () => {
-      const res = await axios.get("https://restcountries.com/v3.1/name/"+country);
-      const data = await res.data
-      console.log(data,'country')
-        navigation.navigate('CountryDetails',{data: data})
+export default function Home({navigation}:Props) {
+    const [country, setCountry] = useState('');
+    const [load,setLoad]=useState(false)
+        const handlePress  = async () => {
+          setLoad(true)
+     const val  = await axios.get("https://restcountries.com/v3.1/name/"+country).then(res=>
+      {
+        navigation.navigate('CountryDetails',{data: res.data})
+        setLoad(false)
+      }).catch(error=> {
+        setLoad(false)
+        Alert.alert(
+        'Failed', error?.response?.data?.message,
+        [
+          {text: 'OK'},
+        ],
+        { 
+          cancelable: true 
+        }
+      );})
+       
     }
      
     return(
@@ -23,9 +44,10 @@ export default function Home({navigation}:NativeStackScreenProps<RootStackParamL
         onChangeText={newText => setCountry(newText)}
         defaultValue={country}
       />
+     
         <View style={styles.bottom}>
        <TouchableOpacity style={country.length > 0?styles.button:styles.disable} onPress={handlePress} disabled={country.length > 0 ? false : true}>
-          <Text style={{ color: 'white',fontSize:16 }} >Get Weather</Text>
+          <Text style={{ color: 'white',fontSize:16 }} > {load?  <ActivityIndicator size="large"  animating={load} color="white" />: 'Get Weather'} </Text>
        </TouchableOpacity>
        </View>
       </View>

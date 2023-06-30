@@ -1,17 +1,41 @@
-
+import { useState } from 'react';
 import { NativeStackScreenProps } from '@react-navigation/native-stack'
-import { StyleSheet, TouchableOpacity, View, Text, Image } from 'react-native';
+import { StyleSheet, TouchableOpacity, ActivityIndicator,View, Text, Image,Alert } from 'react-native';
 import { RootStackParamList } from '../App';
 import axios from 'axios'
- const CountryDetails =   ({route,navigation}:NativeStackScreenProps<RootStackParamList, "CountryDetails">)=> {
-    const data= route.params?.data;
+
+
+type ProfileScreenNavigationProp = NativeStackScreenProps<
+  RootStackParamList,
+  'CountryDetails'
+>;
+type Props = {
+  navigation: ProfileScreenNavigationProp;
+  route :any
+};
+
+ const CountryDetails =   ({route,navigation}:Props)=> {
+  const [load,setLoad]=useState(false)
+    const data= route?.params?.data;
     const img = data[0]?.flags['png']
     console.log(data[0]?.capital[0])
     const HandleWeather  = async() => {
-       const res = await axios.get('http://api.weatherstack.com/current?access_key=d9ad6e94a8f815a2c855d69119fbc2cd&query='+data[0]?.capital[0]);
-       const val = await res.data
-       console.log(val,'weather')
-      navigation.navigate('WeatherDetails',{data: val})
+      setLoad(true)
+        await axios.get('http://api.weatherstack.com/current?access_key=d9ad6e94a8f815a2c855d69119fbc2cd&query='+data[0]?.capital[0]).then(res=>
+       { 
+        navigation.navigate('WeatherDetails',{data: res.data})}).catch(res=>{ 
+        console.log(res)
+        Alert.alert(
+        'Failed to load', res.response.data.mesage,
+        [
+          {text: 'OK'},
+        ],
+        { 
+          cancelable: true 
+        }
+      );})
+      setLoad(false)
+      
     }
   return (
     <View style={styles.container}>     
@@ -24,7 +48,7 @@ import axios from 'axios'
         </View>
         <View >
             <TouchableOpacity style={styles.button1} onPress={HandleWeather} >
-             <Text style={{ color: 'white',fontSize:16 }} >{data[0]?.capital[0] + "'s Weather"} </Text>
+             <Text style={{ color: 'white',fontSize:16 }} >{load?  <ActivityIndicator size="large"  animating={load} color="white" />: data[0]?.capital[0] + "'s Weather"} </Text>
             </TouchableOpacity>
           </View>
         </View>

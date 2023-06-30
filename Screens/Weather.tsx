@@ -1,14 +1,15 @@
-
+import { useState } from 'react';
 import { NativeStackScreenProps } from '@react-navigation/native-stack'
-import { StyleSheet, TouchableOpacity, View, Text, Image } from 'react-native';
+import { StyleSheet, TouchableOpacity,ActivityIndicator, View, Text, Image } from 'react-native';
 import { RootStackParamList } from '../App';
 
 
  const Weather =   ({route,navigation}:NativeStackScreenProps<RootStackParamList, "WeatherDetails">)=> {
-    
+  const [load,setLoad]=useState(false)
     const weather= route.params?.data;
     const weatherImg = weather?.current?.weather_icons[0]
     const HandleHome  = () => {
+      setLoad(true)
       navigation.navigate('Home')
     }
   return (
@@ -23,7 +24,7 @@ import { RootStackParamList } from '../App';
          </View>   
   <View>
   <TouchableOpacity style={styles.button1} onPress={HandleHome} >          
-      <Text style={{ color: 'white',fontSize:16 }} >Close</Text>
+      <Text style={{ color: 'white',fontSize:16 }} >{load?  <ActivityIndicator size="large"  animating={load} color="white" />: 'Close'} </Text>
             </TouchableOpacity>
           </View>      
           </View>
